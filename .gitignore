@@ -1,0 +1,16 @@
+
+# python
+__pycache__
+*.pyc
+.vscode
+.pytest_cache
+build
+*.egg-info
+*.egg
+
+
+# jupyter
+.ipynb_checkpoints
+
+# project specific ignores
+.cache
