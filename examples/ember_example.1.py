@@ -64,6 +64,3 @@ visualizer = ResidualsPlot(reg)
 visualizer.score(x_train, y_train)  # Evaluate the model on the test data
 visualizer.poof()                 # Draw/show/poof the data
 
-
-
-#%%

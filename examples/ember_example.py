@@ -15,7 +15,7 @@ sys.path.append('/home/washcycle/Development.local/embedding_utils')
 from ember import Ember
 
 #%%
-df = pd.read_csv("nyc-east-river-bicycle-crossings.zip")
+df = pd.read_csv("nyc-east-river-bicycle-crossings.zip", index_column=0)
 df["Date"] = pd.to_datetime(df['Date'])
 df["day_of_week"] = df["Date"].dt.day_name()
 

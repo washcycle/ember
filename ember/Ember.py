@@ -12,7 +12,7 @@ from sklearn import preprocessing
 
 class Ember(TransformerMixin):
 
-    def __init__(self, categorical_columns, embedding_output_targets, embedding_size = 10, loss='mean_squared_error'):
+    def __init__(self, categorical_columns=[], embedding_output_targets=[], embedding_size = 10, loss='mean_squared_error'):
         early_stopping_callback = EarlyStopping(monitor='loss', min_delta=1E-6, patience=10, verbose=0, mode='auto')
 
         cache_dir = os.path.join(os.getcwd(), '.cache', 'ember_models')
@@ -25,7 +25,7 @@ class Ember(TransformerMixin):
         self.embedding_size = embedding_size
         self.loss = loss
         self.categorical_columns = categorical_columns
-        self.output_targerts = embedding_output_targets
+        self.output_targets = embedding_output_targets
 
         self.encodings = {}
         self.models = {}
@@ -34,10 +34,14 @@ class Ember(TransformerMixin):
     def fit(self, X, y=None):
         assert isinstance(X, pd.DataFrame)
 
+        if y is not None:
+            if y.name in self.output_targets:
+                self.output_targets.remove(y.name)
+
         for categorical_column in self.categorical_columns:
             self._encode(X[categorical_column], categorical_column)
 
-        self._train_dnns(X)
+        self._train_dnns(X, y)
 
         return self    
 
@@ -59,10 +63,9 @@ class Ember(TransformerMixin):
 
             X[weight_feature_names] = pd.DataFrame(np.row_stack(weight_matrix), index=X.index)
 
-        X.drop(columns=self.categorical_columns, inplace=True)
+        X.drop(columns=self.categorical_columns, inplace=True, errors='ignore')
 
         return X
-    
 
     def _encode(self, x, column_name):
 
@@ -75,13 +78,13 @@ class Ember(TransformerMixin):
 
         self.encodings[column_name] = _classes
 
-    def _train_dnns(self, X):
+    def _train_dnns(self, X, y):
 
         for column_name, _classes in self.encodings.items():
 
-            self.models[column_name] = self._build_model(len(_classes), len(self.output_targerts), self.embedding_size)
+            self.models[column_name] = self._build_model(len(_classes), (len(self.output_targets) + 0 if y is None else 1), self.embedding_size)
 
-            x_train, y_train = self._get_training_data(X, column_name)
+            x_train, y_train = self._get_training_data(X, y, column_name)
 
             self.models[column_name].fit(x=x_train, 
                                          y=y_train, 
@@ -117,12 +120,16 @@ class Ember(TransformerMixin):
         return model       
 
 
-    def _get_training_data(self, X, column_name_to_encode):
+    def _get_training_data(self, X, y, column_name_to_encode):
 
         x_encoded = X[column_name_to_encode].apply(lambda x: self.encodings[column_name_to_encode][x])
 
         x_train = np.reshape(x_encoded.values, (-1, 1))    
-        y_train = np.reshape(X[self.output_targerts].values, (-1, len(self.output_targerts)))
+
+        if not self.output_targets:
+            y_train = np.reshape(y.values, (-1,1))
+        else:
+            y_train = np.reshape(pd.concat(X[self.output_targets], y).values, (-1, len(self.output_targets)+1))
 
         return x_train, y_train
 
