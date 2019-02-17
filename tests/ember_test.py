@@ -74,7 +74,7 @@ def test_pipeline_no_targets_specified():
 
     #%%
     clf = svm.SVC(kernel='linear')
-    emb = Ember(categorical_columns=['day_of_week'], embedding_output_targets=None)
+    emb = Ember(categorical_columns=['day_of_week'])
     ember_svm = Pipeline([('drop_features', FunctionTransformer(drop_features, validate=False)), ('ember', emb), ('svc', clf)])
     
     ember_svm.set_params(svc__C=.1).fit(df, y)

@@ -92,7 +92,7 @@ class Ember(TransformerMixin):
 
             self.models[column_name].fit(x=x_train, 
                                          y=y_train, 
-                                         epochs = 200, 
+                                         epochs = self.epochs, 
                                          batch_size = 32,
                                          callbacks = self.callbacks,
                                          verbose=None)    
