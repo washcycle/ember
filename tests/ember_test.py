@@ -38,6 +38,7 @@ def test_fit_transform():
     # Check if generated feature names are in the new df
     assert set([''.join(['day_of_week', '_ember_weight_', str(_idx)]) for _idx in range(0, 10)]).issubset(set(df_new.columns))
     assert 'day_of_week' not in df_new.columns
+    
 
 def test_pipeline():
     from sklearn.pipeline import Pipeline, FeatureUnion
@@ -58,4 +59,25 @@ def test_pipeline():
     ember_svm.set_params(svc__C=.1).fit(df, y)
 
     assert True
+
+
+def test_pipeline_no_targets_specified():
+    from sklearn.pipeline import Pipeline, FeatureUnion
+    from sklearn import svm
+    from sklearn.preprocessing import FunctionTransformer
+
+    y = df['Total']
+
+    def drop_features(X):
+        print("here")
+        return X.drop(columns=['Total', 'Precipitation', 'Date', 'Day'])
+
+    #%%
+    clf = svm.SVC(kernel='linear')
+    emb = Ember(categorical_columns=['day_of_week'], embedding_output_targets=None)
+    ember_svm = Pipeline([('drop_features', FunctionTransformer(drop_features, validate=False)), ('ember', emb), ('svc', clf)])
+    
+    ember_svm.set_params(svc__C=.1).fit(df, y)
+
+    assert True    
 

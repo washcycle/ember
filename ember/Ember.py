@@ -12,7 +12,8 @@ from sklearn import preprocessing
 
 class Ember(TransformerMixin):
 
-    def __init__(self, categorical_columns=[], embedding_output_targets=[], embedding_size = 10, loss='mean_squared_error'):
+    def __init__(self, categorical_columns=[], embedding_output_targets=[], embedding_size = 10, loss='mean_squared_error', epochs=200):
+
         early_stopping_callback = EarlyStopping(monitor='loss', min_delta=1E-6, patience=10, verbose=0, mode='auto')
 
         cache_dir = os.path.join(os.getcwd(), '.cache', 'ember_models')
@@ -24,6 +25,8 @@ class Ember(TransformerMixin):
 
         self.embedding_size = embedding_size
         self.loss = loss
+        self.epochs = epochs
+
         self.categorical_columns = categorical_columns
         self.output_targets = embedding_output_targets
 
@@ -31,10 +34,11 @@ class Ember(TransformerMixin):
         self.models = {}
         self.embeddings = {}
 
+
     def fit(self, X, y=None):
         assert isinstance(X, pd.DataFrame)
 
-        if y is not None:
+        if y is not None and self.output_targets is not None:
             if y.name in self.output_targets:
                 self.output_targets.remove(y.name)
 
@@ -89,7 +93,7 @@ class Ember(TransformerMixin):
             self.models[column_name].fit(x=x_train, 
                                          y=y_train, 
                                          epochs = 200, 
-                                         batch_size = 3,
+                                         batch_size = 32,
                                          callbacks = self.callbacks,
                                          verbose=None)    
 
@@ -105,7 +109,7 @@ class Ember(TransformerMixin):
         
 
     def _build_model(self, input_dim, output_length, embedding_size):
-
+        # TODO use auto-keras here for the output layer, must be able to gurantee embedding input layer and label
         model = Sequential()
         model.add(Embedding(input_dim = input_dim, output_dim = embedding_size, input_length = 1, name="embedding"))
         model.add(Dense(units=40, activation = "relu"))
