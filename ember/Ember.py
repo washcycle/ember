@@ -84,11 +84,22 @@ class Ember(TransformerMixin):
 
     def _train_dnns(self, X, y):
 
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth=True
+        sess = tf.Session(config=config)
+        tf.keras.backend.set_session(sess)
+
         for column_name, _classes in self.encodings.items():
 
             self.models[column_name] = self._build_model(len(_classes), (len(self.output_targets) + 0 if y is None else 1), self.embedding_size)
 
             x_train, y_train = self._get_training_data(X, y, column_name)
+
+            if os._exists(os.path.join(os.getcwd(), '.cache', 'ember_models', column_name + '_model.h5')):
+                self.models[column_name] = tf.keras.load_model(os.path.join(os.getcwd(), '.cache', 'ember_models', column_name + '_model.h5'))
+                self.embeddings[column_name] = self.models[column_name].get_layer('embedding').get_weights()
+                tf.keras.backend.clear_session()
+                continue
 
             self.models[column_name].fit(x=x_train, 
                                          y=y_train, 
