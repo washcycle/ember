@@ -96,7 +96,7 @@ class Ember(TransformerMixin):
             x_train, y_train = self._get_training_data(X, y, column_name)
 
             if os._exists(os.path.join(os.getcwd(), '.cache', 'ember_models', column_name + '_model.h5')):
-                self.models[column_name] = tf.keras.load_model(os.path.join(os.getcwd(), '.cache', 'ember_models', column_name + '_model.h5'))
+                self.models[column_name] = tf.keras.models.load_model(os.path.join(os.getcwd(), '.cache', 'ember_models', column_name + '_model.h5'))
                 self.embeddings[column_name] = self.models[column_name].get_layer('embedding').get_weights()
                 tf.keras.backend.clear_session()
                 continue
