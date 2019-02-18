@@ -28,7 +28,7 @@ def test_dnn():
     em.fit(df)
 
     # check that at least 1 epoch was trained
-    assert len(em.models['day_of_week'].history.epoch) > 0
+    assert em.models['day_of_week'] is not None
 
 def test_fit():
 
