@@ -1,12 +1,18 @@
 from ember import Ember
 import pandas as pd
 
-# dummy data set for testing
-df = pd.read_csv("tests/nyc-east-river-bicycle-crossings.zip")
-df["Date"] = pd.to_datetime(df['Date'])
-df["day_of_week"] = df["Date"].dt.day_name()
+def gen_test_data():
+    # dummy data set for testing
+    df = pd.read_csv("tests/nyc-east-river-bicycle-crossings.zip")
+    df["Date"] = pd.to_datetime(df['Date'])
+    df["day_of_week"] = df["Date"].dt.day_name()
+
+    return df
 
 def test_encoder():
+
+    df = gen_test_data
+
     em = Ember(['col1', 'col2'], ['col3'])
     em._encode(['a','a','b','c','a'], 'group')
 
@@ -15,6 +21,9 @@ def test_encoder():
     assert len(em.encodings['group'].keys()) == 3
 
 def test_dnn():
+
+    df = gen_test_data()
+
     em = Ember(['day_of_week'], ['Total'])
     em.fit(df)
 
@@ -22,6 +31,9 @@ def test_dnn():
     assert len(em.models['day_of_week'].history.epoch) > 0
 
 def test_fit():
+
+    df = gen_test_data()
+
     em = Ember(['day_of_week'], ['Total'])
     em.fit(df)
     df_new = em.transform(df)
@@ -31,6 +43,9 @@ def test_fit():
     assert 'day_of_week' not in df_new.columns
 
 def test_fit_transform():
+
+    df = gen_test_data()
+
     em = Ember(['day_of_week'], ['Total'])
     df.drop(columns=['Total'])
     df_new = em.fit_transform(df, y=df['Total'])
@@ -44,6 +59,8 @@ def test_pipeline():
     from sklearn.pipeline import Pipeline, FeatureUnion
     from sklearn import svm
     from sklearn.preprocessing import FunctionTransformer
+
+    df = gen_test_data()
 
     y = df['Total']
 
@@ -65,6 +82,8 @@ def test_pipeline_no_targets_specified():
     from sklearn.pipeline import Pipeline, FeatureUnion
     from sklearn import svm
     from sklearn.preprocessing import FunctionTransformer
+
+    df = gen_test_data()
 
     y = df['Total']
 

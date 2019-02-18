@@ -98,7 +98,6 @@ class Ember(TransformerMixin):
             if os._exists(os.path.join(os.getcwd(), '.cache', 'ember_models', column_name + '_model.h5')):
                 self.models[column_name] = tf.keras.models.load_model(os.path.join(os.getcwd(), '.cache', 'ember_models', column_name + '_model.h5'))
                 self.embeddings[column_name] = self.models[column_name].get_layer('embedding').get_weights()
-                tf.keras.backend.clear_session()
                 continue
 
             self.models[column_name].fit(x=x_train, 
@@ -141,10 +140,13 @@ class Ember(TransformerMixin):
 
         x_train = np.reshape(x_encoded.values, (-1, 1))    
 
-        if not self.output_targets:
+        if (self.output_targets == None or len(self.output_targets)==0) and y is not None:
             y_train = np.reshape(y.values, (-1,1))
-        else:
+        elif self.output_targets is not None and y is not None:
             y_train = np.reshape(pd.concat(X[self.output_targets], y).values, (-1, len(self.output_targets)+1))
+        else:
+            y_train = np.reshape(X[self.output_targets].values, (-1, len(self.output_targets)))
+            
 
         return x_train, y_train
 
