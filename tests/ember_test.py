@@ -100,3 +100,24 @@ def test_pipeline_no_targets_specified():
 
     assert True    
 
+
+def test_pickling():
+    import pickle
+    import io
+
+    df = gen_test_data()
+
+    em = Ember(['col1', 'col2'], ['col3'])
+    em._encode(['a','a','b','c','a'], 'group')
+
+    embeddings = em.embeddings
+
+    pickle.dump(em, open('test.sav', 'wb'))
+
+    del em
+
+    em = pickle.load(open('test.sav', 'rb'))
+
+    assert embeddings == em.embeddings
+
+    

@@ -7,7 +7,7 @@ __pycache__
 build
 *.egg-info
 *.egg
-
+*.sav
 
 # jupyter
 .ipynb_checkpoints

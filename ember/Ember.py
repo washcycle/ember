@@ -150,5 +150,18 @@ class Ember(TransformerMixin):
 
         return x_train, y_train
 
+    def __getstate__(self):
+        """Return state values to be pickled."""
+        return (self.callbacks,
+                self.embedding_size,
+                self.loss,
+                self.epochs,
+                self.categorical_columns,
+                self.output_targets,
+                self.encodings,
+                self.embeddings)
 
+    def __setstate__(self, state):
+        """Restore state from the unpickled state values."""
+        self.callbacks, self.embedding_size, self.loss, self.epochs, self.categorical_columns, self.output_targets, self.encodings, self.embeddings = state
         
