@@ -84,9 +84,6 @@ class Ember(TransformerMixin):
 
     def _train_dnns(self, X, y):
 
-        sess = tf.Session()
-        tf.keras.backend.set_session(sess)
-
         for column_name, _classes in self.encodings.items():
 
             self.models[column_name] = self._build_model(len(_classes), (len(self.output_targets) + 0 if y is None else 1), self.embedding_size)
@@ -110,11 +107,7 @@ class Ember(TransformerMixin):
             self.models[column_name].save(os.path.join(os.getcwd(), '.cache', 'ember_models', column_name + '_model.h5'))
 
             self.embeddings[column_name] = self.models[column_name].get_layer('embedding').get_weights()
-
-            # clear our tf graph
-            tf.keras.backend.clear_session()
-
-        
+            
 
     def _build_model(self, input_dim, output_length, embedding_size):
         # TODO use auto-keras here for the output layer, must be able to gurantee embedding input layer and label
