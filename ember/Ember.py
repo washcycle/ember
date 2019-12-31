@@ -84,9 +84,7 @@ class Ember(TransformerMixin):
 
     def _train_dnns(self, X, y):
 
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth=True
-        sess = tf.Session(config=config)
+        sess = tf.Session()
         tf.keras.backend.set_session(sess)
 
         for column_name, _classes in self.encodings.items():
