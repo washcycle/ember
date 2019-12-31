@@ -15,7 +15,6 @@ matrix:
       sudo: true
 install:
 - pip install --upgrade -r requirements.txt
-- pip install --upgrade -r requirements-dev.txt
 script:
 - pylint lendingclub2
 - pip install -e . && python -m pytest tests
